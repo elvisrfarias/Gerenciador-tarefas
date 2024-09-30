@@ -1,39 +1,49 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using GerenciadorAplication.UseCases.Tarefas.GetAll;
+using GerenciadorAplication.UseCases.Tarefas.Register;
+using GerenciadorComunication.Requests;
+using GerenciadorComunication.Responses;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GerenciadorTarefas.Controllers;
 [Route("v1/[controller]")]
 [ApiController]
 public class GerencidorTarefaController : ControllerBase
 {
-    // GET: api/<GerencidorTarefaController>
     [HttpGet]
-    public IEnumerable<string> Get()
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ResponseAllTarefaJson), StatusCodes.Status200OK)]
+    public IActionResult GetAll([FromRoute] int id)
     {
-        return new string[] { "value1", "value2" };
+        var useCase = new GetAllTarefaUseCases();
+        var response = useCase.Execute();
+
+        if (response.Pets.Any())
+        {
+            return Ok(response);
+        }
+
+        return NoContent();
     }
 
-    // GET api/<GerencidorTarefaController>/5
-    [HttpGet("{id}")]
-    public string Get(int id)
-    {
-        return "value";
-    }
-
-    // POST api/<GerencidorTarefaController>
     [HttpPost]
-    public void Post([FromBody] string value)
+    [ProducesResponseType(typeof(ResponseRegisterTarefaJson), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status400BadRequest)]
+    public IActionResult Register([FromBody] RequestTarefaJson request)
     {
+        var response = new TarefaRegisterUseCases().Execute(request);
+        return Created(string.Empty, response);
     }
 
-    // PUT api/<GerencidorTarefaController>/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    [HttpPut]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status400BadRequest)]
+
+    public IActionResult Update([FromRoute] int id, [FromBody] RequestTarefaJson request)
     {
+        return NoContent();
     }
 
-    // DELETE api/<GerencidorTarefaController>/5
     [HttpDelete("{id}")]
     public void Delete(int id)
     {
